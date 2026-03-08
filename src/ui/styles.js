@@ -1,4 +1,15 @@
-const CSS = (e) => `
+/**
+ * ui/styles.js
+ *
+ * 页面 CSS 样式生成函数。
+ * 接受运行时配置（如背景图片地址）并返回完整的 CSS 字符串。
+ *
+ * @param {Object} ctx - 请求上下文
+ * @param {string} ctx.backgroundImage - 背景图片地址
+ * @returns {string} CSS 样式字符串
+ */
+export function buildStyles(ctx) {
+    return `
         :root {
             --primary-color: #4361ee;
             --primary-light: #4895ef;
@@ -21,7 +32,7 @@ const CSS = (e) => `
         }
 
         body {
-            background-image: url(${e.IMG});
+            background-image: url(${ctx.backgroundImage});
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
@@ -34,7 +45,7 @@ const CSS = (e) => `
             justify-content: center;
             padding: 20px;
             align-items: center;
-            position: relative; 
+            position: relative;
         }
 
         .container {
@@ -61,7 +72,6 @@ const CSS = (e) => `
 
         h1 {
             text-align: center;
-            color: var(--primary-color);
             margin-bottom: 0.5rem;
             font-size: 2rem;
             font-weight: 700;
@@ -207,7 +217,7 @@ const CSS = (e) => `
             position: absolute;
             top: 0;
             right: 0;
-            z-index: 1000; /* 确保 GitHub 角标始终在最上层 */
+            z-index: 1000;
         }
 
         .github-corner svg {
@@ -232,8 +242,8 @@ const CSS = (e) => `
 
         @keyframes octocat-wave {
             0%, 100% { transform: rotate(0); }
-            20%, 60% { transform: rotate(-25deg); }
-            40%, 80% { transform: rotate(10deg); }
+            20%, 60%  { transform: rotate(-25deg); }
+            40%, 80%  { transform: rotate(10deg); }
         }
 
         .logo-title {
@@ -280,14 +290,14 @@ const CSS = (e) => `
         }
 
         #qrcode.show {
-            display: flex; /* 有内容时显示 */
+            display: flex;
         }
-        
+
         .template-selector {
             position: relative;
             margin-bottom: 0.5rem;
         }
-        
+
         .template-toggle {
             padding: 14px 16px;
             background-color: rgba(67, 97, 238, 0.08);
@@ -300,23 +310,23 @@ const CSS = (e) => `
             transition: all 0.3s ease;
             border: 2px solid transparent;
         }
-        
+
         .template-toggle:hover {
             background-color: rgba(67, 97, 238, 0.15);
             border-color: rgba(67, 97, 238, 0.2);
         }
-        
+
         .template-toggle:after {
             content: "▶";
             font-size: 12px;
             transition: transform 0.3s ease;
             margin-left: 8px;
         }
-        
+
         .template-toggle.collapsed:after {
             transform: rotate(90deg);
         }
-        
+
         .template-options {
             position: absolute;
             top: 100%;
@@ -333,23 +343,17 @@ const CSS = (e) => `
             border-top: none;
             transition: all 0.3s ease;
         }
-        
+
         .template-options.show {
             display: block;
             animation: slideDown 0.3s ease-out;
         }
-        
+
         @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(-10px); }
+            to   { opacity: 1; transform: translateY(0); }
         }
-        
+
         .template-option {
             padding: 12px 20px;
             cursor: pointer;
@@ -357,16 +361,16 @@ const CSS = (e) => `
             border-bottom: 1px solid var(--border-color);
             font-size: 0.95rem;
         }
-        
+
         .template-option:last-child {
             border-bottom: none;
         }
-        
+
         .template-option:hover {
             background-color: rgba(67, 97, 238, 0.1);
             padding-left: 24px;
         }
-        
+
         .template-option.selected {
             background-color: rgba(67, 97, 238, 0.15);
             font-weight: 600;
@@ -420,14 +424,8 @@ const CSS = (e) => `
         }
 
         @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(10px); }
+            to   { opacity: 1; transform: translateY(0); }
         }
 
         .tip-icon {
@@ -505,7 +503,8 @@ const CSS = (e) => `
             margin-bottom: 6px;
         }
 
-        .tip-panel strong, .tip-panel b {
+        .tip-panel strong,
+        .tip-panel b {
             font-weight: bold;
             color: var(--primary-color);
             display: block;
@@ -552,50 +551,18 @@ const CSS = (e) => `
                 margin: 10px;
                 border-radius: 20px;
             }
-            
-            h1 {
-                font-size: 1.8rem;
-            }
-            
-            .toggle-option {
-                padding: 8px 12px;
-                font-size: 0.9rem;
-            }
-            
-            .protocol-options {
-                gap: 1px;
-            }
+            h1 { font-size: 1.8rem; }
+            .toggle-option { padding: 8px 12px; font-size: 0.9rem; }
+            .protocol-options { gap: 1px; }
         }
 
         @media (max-width: 480px) {
-            body {
-                padding: 10px;
-            }
-            
-            .container {
-                padding: 1.5rem;
-                border-radius: 16px;
-            }
-            
-            h1 {
-                font-size: 1.6rem;
-            }
-            
-            .link-input {
-                padding: 10px 12px;
-                font-size: 0.9rem;
-            }
-            
-            .add-btn {
-                width: 38px;
-                height: 38px;
-                font-size: 1rem;
-            }
-            
-            button {
-                padding: 12px 20px;
-                font-size: 0.95rem;
-            }
+            body { padding: 10px; }
+            .container { padding: 1.5rem; border-radius: 16px; }
+            h1 { font-size: 1.6rem; }
+            .link-input { padding: 10px 12px; font-size: 0.9rem; }
+            .add-btn { width: 38px; height: 38px; font-size: 1rem; }
+            button { padding: 12px 20px; font-size: 0.95rem; }
         }
-`;
-export default CSS;
+    `;
+}

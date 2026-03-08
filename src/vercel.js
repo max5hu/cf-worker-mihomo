@@ -1,73 +1,48 @@
-import { getmihomo_config } from './mihomo.js';
-import { getsingbox_config } from './singbox.js';
-import { getv2ray_config } from './v2ray.js';
-import { getFakePage } from './page.js';
-import * as utils from './utils.js';
-export default async function handler(req, res) {
-    const url = new URL(req.url, `http://${req.headers.host}`);
-    const e = {
-        url,
-        urls: url.searchParams.getAll('url'),
-        userAgent: req.headers['user-agent'],
-        rule: url.searchParams.get('template'),
-        singbox: url.searchParams.get('singbox') === 'true',
-        mihomo: url.searchParams.get('mihomo') === 'true',
-        v2ray: url.searchParams.get('v2ray') === 'true',
-        udp: url.searchParams.get('udp') === 'true',
-        udp_fragment: url.searchParams.get('udp_frag') === 'true',
-        tls_fragment: url.searchParams.get('tls_frag') === 'true',
-        exclude_package: url.searchParams.get('ep') === 'true',
-        exclude_address: url.searchParams.get('ea') === 'true',
-        tailscale: url.searchParams.get('tailscale') === 'true',
-        adgdns: url.searchParams.get('adgdns') === 'true',
-        tun: url.searchParams.get('tun') === 'true',
-        IMG: process.env.IMG || utils.backimg,
-        sub: process.env.SUB || utils.subapi,
-        Mihomo_default: process.env.MIHOMOTOP || utils.mihomo_top,
-        singbox_1_11: process.env.SINGBOX_1_11 || utils.singbox_1_11,
-        singbox_1_12: process.env.SINGBOX_1_12 || utils.singbox_1_12,
-        singbox_1_12_alpha: process.env.SINGBOX_1_12_ALPHA || utils.singbox_1_12_alpha,
-        singbox_1_13: process.env.SINGBOX_1_13 || utils.singbox_1_13,
-        beian: process.env.BEIAN || utils.beiantext,
-        beianurl: process.env.BEIANURL || utils.beiandizi,
-        configs: utils.configs(process.env.MIHOMO, process.env.SINGBOX),
-    };
-    e.modes = utils.modes(e.sub, e.userAgent);
-    if (e.urls.length === 1 && e.urls[0].includes(',')) {
-        e.urls = e.urls[0].split(',').map((u) => u.trim());
-    }
+/**
+ * vercel.js
+ *
+ * Vercel Serverless Function 入口文件。
+ * 接收 Node.js HTTP IncomingMessage 和 ServerResponse 对象，
+ * 调用核心处理器并将结果写入响应流。
+ *
+ * 部署说明：
+ *   - 将此文件放置在 Vercel 项目的 /api 目录下，或在 vercel.json 中配置路由
+ *   - 可在 Vercel 的环境变量面板中配置以下 Key（与 worker.js 保持一致）：
+ *       IMG / SUB / MIHOMOTOP / SINGBOX_1_11 / SINGBOX_1_12
+ *       SINGBOX_1_12_ALPHA / SINGBOX_1_13 / BEIAN / BEIANURL
+ *       MIHOMO / SINGBOX
+ */
 
-    if (e.urls.length === 0 || e.urls[0] === '') {
-        const html = await getFakePage(e);
-        res.setHeader('Content-Type', 'text/html; charset=utf-8');
-        res.statusCode = 200;
-        res.end(html);
-        return;
-    }
+import { handleRequest } from './core/handler.js';
+
+/**
+ * Vercel Serverless Function 处理器。
+ *
+ * @param {import('http').IncomingMessage} req - Node.js HTTP 请求对象
+ * @param {import('http').ServerResponse}  res - Node.js HTTP 响应对象
+ */
+export default async function handler(req, res) {
+    // Vercel 传入的 req.url 是相对路径，需要拼接 Host 构造完整 URL
+    const requestUrl = new URL(req.url, `http://${req.headers.host}`);
+    const userAgent  = req.headers['user-agent'] || '';
+
+    // 将 process.env 作为环境变量对象传入（与 CF Workers 的 env 对象保持接口一致）
+    const env = process.env;
 
     try {
-        let result;
-        if (e.singbox) {
-            result = await getsingbox_config(e);
-        } else if (e.mihomo) {
-            result = await getmihomo_config(e);
-        } else if (e.v2ray) {
-            result = await getv2ray_config(e);
+        const result = await handleRequest(requestUrl, userAgent, env);
+
+        // 将过滤后的响应头写入 Node.js 响应
+        for (const [key, value] of Object.entries(result.headers)) {
+            res.setHeader(key, value);
         }
 
-        const rawHeaders = result.headers;
-        const headersToIgnore = ['transfer-encoding', 'content-length', 'content-encoding', 'connection'];
-
-        for (const [key, value] of Object.entries(rawHeaders)) {
-            if (!headersToIgnore.includes(key.toLowerCase())) {
-                res.setHeader(key, value);
-            }
+        if (result.isHtml) {
+            res.setHeader('Content-Type', 'text/html; charset=utf-8');
         }
 
-        res.setHeader('Content-Type', 'application/json; charset=utf-8');
-        res.setHeader('Profile-web-page-url', url.origin);
-        res.statusCode = result.status || 200;
-        res.end(result.data);
+        res.statusCode = result.status;
+        res.end(result.body);
     } catch (err) {
         res.statusCode = 400;
         res.setHeader('Content-Type', 'application/json; charset=utf-8');

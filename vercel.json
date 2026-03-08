@@ -1,15 +1,59 @@
 {
+  "name": "proxy-config-converter",
   "version": 2,
-  "builds": [
-    {
-      "src": "dist/vercel.js",
-      "use": "@vercel/node"
+  "buildCommand": "npm run build",
+  "installCommand": "npm install",
+  "outputDirectory": "dist",
+  "framework": "other",
+  "env": {
+    "IMG": {
+      "description": "背景图片地址"
+    },
+    "SUB": {
+      "description": "订阅转换后端地址"
+    },
+    "MIHOMOTOP": {
+      "description": "Mihomo 顶层配置模板地址"
+    },
+    "SINGBOX_1_11": {
+      "description": "Singbox 1.11.x 顶层配置模板地址"
+    },
+    "SINGBOX_1_12": {
+      "description": "Singbox 1.12.x 顶层配置模板地址"
+    },
+    "SINGBOX_1_12_ALPHA": {
+      "description": "Singbox 1.12.x alpha 顶层配置模板地址"
+    },
+    "SINGBOX_1_13": {
+      "description": "Singbox 1.13.x 顶层配置模板地址"
+    },
+    "BEIAN": {
+      "description": "备案文字"
+    },
+    "BEIANURL": {
+      "description": "备案链接"
+    },
+    "MIHOMO": {
+      "description": "自定义 Mihomo 规则模板地址（可选）"
+    },
+    "SINGBOX": {
+      "description": "自定义 Singbox 规则模板地址（可选）"
     }
-  ],
+  },
   "routes": [
     {
+      "src": "/api/(.*)",
+      "dest": "/dist/vercel.js"
+    },
+    {
       "src": "/(.*)",
-      "dest": "dist/vercel.js"
+      "dest": "/dist/vercel.js"
     }
-  ]
+  ],
+  "functions": {
+    "dist/vercel.js": {
+      "memory": 1024,
+      "maxDuration": 60
+    }
+  }
 }

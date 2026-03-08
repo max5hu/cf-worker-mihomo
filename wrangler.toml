@@ -1,5 +1,31 @@
-keep_vars = true
-name = "cf-worker-mihomo"
-main = "dist/_worker.js"
-compatibility_date = "2025-04-16"
+name = "proxy-config-converter"
+main = "dist/worker.js"
+compatibility_date = "2024-01-01"
 compatibility_flags = ["nodejs_compat"]
+
+# 环境变量配置
+[env.production]
+routes = [
+  { pattern = "example.com/*", zone_name = "example.com" }
+]
+
+# 本地开发环境配置
+[env.development]
+routes = [
+  { pattern = "localhost/*" }
+]
+
+# 环境变量绑定（需要在 Cloudflare 仪表板中手动配置或通过 wrangler secret 设置）
+# 参考 BUILD.md 中的环境变量说明
+
+# 构建配置
+[build]
+command = "npm run build"
+cwd = "."
+watch_paths = ["src_refactored/**/*.js"]
+
+# 开发服务器配置
+[dev]
+ip = "127.0.0.1"
+port = 8787
+local_protocol = "http"
